@@ -6,3 +6,22 @@ output:
   html_document:
     df_print: paged
 ---
+
+# 1 
+```{r}
+library(readr)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+ames_liquor = read_csv("2019_Iowa_Liquor_Sales.csv")
+ames_liquor
+```
+
+# 2
+```{r}
+foo = ames_liquor %>% separate("Store Location", c(NA, "lat","lat_dec","long", "long_dec"))
+foo
+```
+

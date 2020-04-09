@@ -1,0 +1,8 @@
+---
+title: "Homework 5"
+author: "Ann Gould"
+github: "gould-ann"
+output:
+  html_document:
+    df_print: paged
+---

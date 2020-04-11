@@ -12,16 +12,86 @@ output:
 library(readr)
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
+library(stringr) 
 ```
 
 ```{r}
-ames_liquor = read_csv("2019_Iowa_Liquor_Sales.csv")
+ames_liquor = readr::read_csv("2019_Iowa_Liquor_Sales.csv")
 ames_liquor
 ```
 
 # 2
 ```{r}
-foo = ames_liquor %>% separate("Store Location", c(NA, "lat","lat_dec","long", "long_dec"))
-foo
+# a
+foo = ames_liquor %>% separate("Store Location", sep= "([\\?\\ ])", c(NA, "lat","long"))
+foo$lat <- stringr::str_replace(foo$lat, '\\(', '')
+foo$long <- stringr::str_replace(foo$lat, '\\)', '')
+sample_n(foo, 5)
+
+# b
+foo$lat <- as.numeric(foo$lat)
+foo$long <- as.numeric(foo$long)
+sample_n(foo, 5)
+
+# c 
+foo <- foo %>% separate("Date", sep= "([\\/])", c("month", "day", "year"))
+sample_n(foo, 5)
+
+# other cleaning:
+foo$"Bottles Sold" <- as.integer(foo$"Bottles Sold")
 ```
+
+# 3 
+```{r}
+# a
+# removes NA locations so we can plot
+foo2 = na.omit(foo)
+# plot(foo2$lat, foo2$long, main = "Locations of stores", xlab="Latitude", ylab="Longitude")
+ggplot(foo2, aes(x=lat, y=long)) + geom_point() + coord_fixed()
+
+```
+
+```{r}
+# 3b visual breakdown?? by liquor category name
+ggplot(foo, aes (x=`Category Name`, color=`Volume Sold (Liters)`)) + geom_bar()
+```
+
+# 4
+
+```{r}
+foo %>% summarise("num_sales" = sum(`Bottles Sold`),"volume_liquor" = sum(`Volume Sold (Liters)`), "spent" = sum(`Sale (Dollars)`))
+```
+
+
+# 5
+```{r}
+# ames_liquor_2019 <- foo %>% filter(year == 2019)
+ggplot(foo, aes(x=day, y="Volume Sold (Liters)")) + geom_point() + geom_smooth()+ facet_wrap(~month)
+```
+
+It looks like there is more of a trend to purchase alcohol over the weekends (dots grouped by 2's on dates that are Saturday/Sunday)
+
+# 6
+
+Fall football dates:
+
+8-31-2019
+
+9-14-2019
+
+9-21-2019
+
+10-5-2019
+
+10-26-2019 -- Homecoming Week
+
+11-16-2019
+
+11-23-2019
+
+----
+
+It looks like people are more likely to purchase alcohol for home football games. It looks like there were also more alcohol purchases for Fall Homecoming.
+
 
